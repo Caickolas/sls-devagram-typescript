@@ -4,10 +4,17 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs14.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
 
 plugins:
   - serverless-plugin-typescript
 
 functions:
-  hello:
-    handler: handler.hello
+  register:
+    handler: functions/auth.register
+    events:
+      - http:
+          path: register
+          method: post
+          cors: true
