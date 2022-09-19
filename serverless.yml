@@ -12,7 +12,7 @@ plugins:
 
 functions:
   register:
-    handler: functions/auth.register
+    handler: src/functions/auth.register
     events:
       - http:
           path: register
@@ -44,4 +44,30 @@ resources:
     CognitoUserPoolClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
-      
+        ClientName: ${self:service}-${self:provider.stage}-user-pool-client
+        UserPoolId: !Ref CognitoUserPool
+        AllowedOAuthFlows: 
+          - implicit
+        AllowedOAuthFlowsUserPoolClient: true
+        AllowedOAuthScopes: 
+          - email
+          - openid
+        CallbackURLs:
+          - https://www.google.com
+        LogoutURLs:
+          - https://www.google.com
+        ExplicitAuthFlows:
+          - ALLOW_CUSTOM_AUTH
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        SupportedIdentityProviders:
+          - COGNITO
+        ReadAttributes:
+         - email
+        WriteAttributes:
+         - email   
+    CognitoUserPoolDomain: 
+      Type: AWS::Cognito::UserPoolDomain
+      Properties: 
+        UserPoolId: !Ref CognitoUserPool
+        Domain: ${self:service}-${self:provider.stage}-domain-caick-galvao-20220918
