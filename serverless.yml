@@ -1,11 +1,18 @@
 service: sls-devagram-typescript
 frameworkVersion: '3'
 
+custom: 
+  userPoolId: 'us-east-1_I3s5k6AnQ'
+  userPoolClientId: '7dhpm73efknq2o9cv0s4mfoctn'
+
 provider:
   name: aws
   runtime: nodejs14.x
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
+  environment:
+    USER_POOL_ID: ${self:custom.userPoolId}
+    USER_POOL_CLIENT_ID: ${self:custom.userPoolClientId}
 
 plugins:
   - serverless-plugin-typescript
@@ -16,6 +23,13 @@ functions:
     events:
       - http:
           path: register
+          method: post
+          cors: true
+  confirmEmail:
+    handler: src/functions/auth.confirmEmail
+    events: 
+      - http:
+          path: confirmEmail
           method: post
           cors: true
 
