@@ -4,6 +4,7 @@ frameworkVersion: '3'
 custom: 
   userPoolId: 'us-east-1_I3s5k6AnQ'
   userPoolClientId: '7dhpm73efknq2o9cv0s4mfoctn'
+  userTableName: 'users-table-${self:provider.stage}'
 
 provider:
   name: aws
@@ -13,6 +14,15 @@ provider:
   environment:
     USER_POOL_ID: ${self:custom.userPoolId}
     USER_POOL_CLIENT_ID: ${self:custom.userPoolClientId}
+    USER_TABLE: ${self:custom.userTableName}
+  iam: 
+    role: 
+      statements:
+        - Effect: Allow
+          Action: 
+            - dynamodb:*
+          Resource: 
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.userTableName}"
 
 plugins:
   - serverless-plugin-typescript
