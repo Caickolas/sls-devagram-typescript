@@ -8,7 +8,7 @@ const UserSchema = new dynamoose.Schema({
     name: {
         type: String,
         index: {
-             name: "nameIndex",
+             name: 'nameIndex',
              global: true
         }
    },

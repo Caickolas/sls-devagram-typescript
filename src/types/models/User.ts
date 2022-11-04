@@ -3,7 +3,7 @@ export type User = {
     email: string,
     cognitoId: string,
     avatar?: string,
-    followers: number,
-    following: Array<string>,
-    posts: number
+    followers?: number,
+    following?: Array<string>,
+    posts?: number
 }

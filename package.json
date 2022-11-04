@@ -17,6 +17,9 @@
   },
   "dependencies": {
     "amazon-cognito-identity-js": "^5.2.10",
-    "dynamoose": "^3.1.0"
+    "aws-multipart-parser": "^0.2.1",
+    "dynamoose": "^3.1.0",
+    "serverless-apigw-binary": "^0.4.4",
+    "uuid": "^9.0.0"
   }
 }

@@ -1,39 +1,53 @@
 import type {Handler,APIGatewayEvent} from 'aws-lambda';
 import { emailRegex, passwordRegex } from '../constants/Regexes';
+import { UserModel } from '../models/UserModel';
 import { CognitoServices } from '../services/CognitoServices';
 import { ConfirmEmailRequest } from '../types/auth/ConfirmEmailRequest';
 import { UserRegisterRequest } from '../types/auth/UserRegisterRequest';
+import { User } from '../types/models/User';
 import { DefaultJsonResponse, formatDefaultResponse } from '../utils/formatResponseUtil';
+import { parse } from 'aws-multipart-parser'
 
 
 export const register : Handler = async(event: APIGatewayEvent) 
     : Promise<DefaultJsonResponse> => {
     try{
-        const {USER_POOL_ID, USER_POOL_CLIENT_ID} = process.env;
+        const {USER_POOL_ID, USER_POOL_CLIENT_ID, USER_TABLE} = process.env;
         if(!USER_POOL_ID || !USER_POOL_CLIENT_ID){
             return formatDefaultResponse(500, 'ENVs do Cognito não encontradas.')
+        }
+        
+        if(!USER_TABLE){
+            return formatDefaultResponse(500, 'ENVs da tabela de usuarios do dynamo não encontradas.')
         }
 
         if(!event.body){
             return formatDefaultResponse(400, 'Parametros de entrada invalidos');
         }
 
-        const request = JSON.parse(event.body) as UserRegisterRequest;
-        const {name, password, email} = request;
+        const formdata = parse(event, true);
 
-        if(!email || !email.match(emailRegex)){
-            return formatDefaultResponse(400, 'Email invalido');
-        }
+        // if(!email || !email.match(emailRegex)){
+        //     return formatDefaultResponse(400, 'Email invalido');
+        // }
 
-        if(!password || !password.match(passwordRegex)){
-            return formatDefaultResponse(400, 'Senha invalida');
-        }
+        // if(!password || !password.match(passwordRegex)){
+        //     return formatDefaultResponse(400, 'Senha invalida');
+        // }
 
-        if(!name || name.trim().length < 2){
-            return formatDefaultResponse(400, 'Nome invalido');
-        }
+        // if(!name || name.trim().length < 2){
+        //     return formatDefaultResponse(400, 'Nome invalido');
+        // }
 
-        await new CognitoServices(USER_POOL_ID, USER_POOL_CLIENT_ID).signUp(email,password);
+        // const cognitoUser =  await new CognitoServices(USER_POOL_ID, USER_POOL_CLIENT_ID).signUp(email,password);
+
+        // const user = {
+        //     name, 
+        //     email , 
+        //     cognitoId: cognitoUser.userSub
+        // } as User;
+
+        // await UserModel.create(user);
 
         return formatDefaultResponse(200, 'Usuario Cadastrado com sucesso!');
 
