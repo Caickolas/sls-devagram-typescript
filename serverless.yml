@@ -28,6 +28,20 @@ provider:
             - dynamodb:*
           Resource: 
             - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.userTableName}"
+  httpApi:
+    authorizers:
+      serviceAuthorizer:
+        identitySource: $request.header.Authorization
+        issuerUrl: 
+          Fn::Join:
+          - ''
+          - 
+            - 'https://cognito-idp.'
+            - '${self:provider.region}'
+            - '.amazonaws.com/'
+            - Ref: CognitoUserPool
+        audience: 
+          - Ref: CognitoUserPoolClient
 
 plugins:
   - serverless-plugin-typescript
@@ -71,6 +85,13 @@ functions:
           path: login
           method: post
           cors: true
+  me:
+    handler: src/functions/user.me
+    events: 
+      - httpApi:
+          path: /me
+          method: get
+          authorizer: serviceAuthorizer
 
 
 resources:
