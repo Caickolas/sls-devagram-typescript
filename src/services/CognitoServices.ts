@@ -57,4 +57,58 @@ export class CognitoServices{
                 }
             })
         }
+
+        public forgotPassword(email : string) : Promise<string> {
+            return new Promise((resolve, reject) => {
+                try {
+                    const userPool = new CognitoUserPool(this.poolData);
+
+                    const userData = {
+                        Username: email,
+                        Pool: userPool
+                    };
+
+                    const cognitoUser = new CognitoUser(userData);
+
+                    cognitoUser.forgotPassword({
+                        onSuccess(data){
+                            resolve(data)
+                        },
+                        onFailure(err){
+                            reject(err)
+                        }
+                    });
+
+                } catch (error) {
+                    reject(error)
+                }
+            })
+        }
+
+        public changePassword(email : string,password: string, verificationCode: string) : Promise<string> {
+            return new Promise((resolve, reject) => {
+                try {
+                    const userPool = new CognitoUserPool(this.poolData);
+
+                    const userData = {
+                        Username: email,
+                        Pool: userPool
+                    };
+
+                    const cognitoUser = new CognitoUser(userData);
+
+                    cognitoUser.confirmPassword(verificationCode, password, {
+                        onSuccess(success) {
+                            resolve(success);
+                        },
+                        onFailure(err) {
+                            reject(err)
+                        }
+                    })
+
+                } catch (error) {
+                    reject(error)
+                }
+            })
+        }
 }
