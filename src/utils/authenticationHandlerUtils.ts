@@ -1,7 +1,7 @@
 import { APIGatewayEvent } from "aws-lambda"
 
 export const getUserIdFromEvent = (event: APIGatewayEvent) => {
-    if(!event?.requestContext?.authorizer?.jwt?.claims['sub']){
+    if (!event?.requestContext?.authorizer?.jwt?.claims['sub']) {
         return null;
     }
 
