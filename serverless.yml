@@ -111,6 +111,13 @@ functions:
           path: /post
           method: post
           authorizer: serviceAuthorizer
+  toggleLike:
+    handler: src/functions/post.toggleLike
+    events: 
+      - httpApi:
+          path: /like/{postId}
+          method: put
+          authorizer: serviceAuthorizer
 
 
 resources:

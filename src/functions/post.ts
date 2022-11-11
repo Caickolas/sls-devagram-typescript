@@ -55,12 +55,58 @@ export const create: Handler = async (event: APIGatewayEvent)
         }
 
         await PostModel.create(post);
-        user.posts = user.posts+1;
+        user.posts = user.posts + 1;
         await UserModel.update(user);
 
         return formatDefaultResponse(200, 'Publicacao criada com sucesso!')
     } catch (error) {
         console.log('Error on create post:', error)
         return formatDefaultResponse(500, 'Erro ao criar publicacao! tente novamente ou contacte o administrador do sistema');
+    }
+}
+export const toggleLike: Handler = async (event: any)
+    : Promise<DefaultJsonResponse> => {
+    try {
+        const { error } = validateEnvs(['POST_TABLE'])
+
+        if (error) {
+            return formatDefaultResponse(500, error)
+        }
+
+        const userId = getUserIdFromEvent(event);
+        if (!userId) {
+            return formatDefaultResponse(400, 'Usuario não encontrado')
+        }
+
+        const user = await UserModel.get({ 'cognitoId': userId });
+        if (!user) {
+            return formatDefaultResponse(400, 'Usuario não encontrado')
+        }
+
+        const { postId } = event.pathParameters;
+        const post = await PostModel.get({ id: postId });
+        if (!post) {
+            return formatDefaultResponse(400, 'Publicacao nao encontrada')
+        }
+
+        const hasLikedIndex = post.likes.findIndex(obj => {
+            const result = obj.toString() === userId;
+            return result;
+        })
+
+        if (hasLikedIndex != -1) {
+            post.likes.splice(hasLikedIndex, 1);
+            await PostModel.update(post);
+            return formatDefaultResponse(200, 'Like removido com sucesso!')
+        } else {
+            post.likes.push(userId);
+            await PostModel.update(post);
+            return formatDefaultResponse(200, 'Like adicionado com sucesso!')
+        }
+
+
+    } catch (error) {
+        console.log('Error on toggle like:', error)
+        return formatDefaultResponse(500, 'Erro ao curtir/descurtir publicacao! tente novamente ou contacte o administrador do sistema');
     }
 }
