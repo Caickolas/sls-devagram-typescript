@@ -5,6 +5,8 @@ custom:
   userPoolId: 'us-east-1_I3s5k6AnQ'
   userPoolClientId: '7dhpm73efknq2o9cv0s4mfoctn'
   userTableName: 'users-table-${self:provider.stage}'
+  postTableName: 'posts-table-${self:provider.stage}'
+  postBucket: '${self:service}-${self:provider.stage}-postsss'
   avatarBucket: '${self:service}-${self:provider.stage}-avatarsss'
   apigwBinary:
     types:
@@ -20,6 +22,8 @@ provider:
     USER_POOL_CLIENT_ID: ${self:custom.userPoolClientId}
     USER_TABLE: ${self:custom.userTableName}
     AVATAR_BUCKET: ${self:custom.avatarBucket}
+    POST_TABLE: ${self:custom.postTableName}
+    POST_BUCKET: ${self:custom.postBucket}
   iam: 
     role: 
       statements:
@@ -28,6 +32,7 @@ provider:
             - dynamodb:*
           Resource: 
             - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.userTableName}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.postTableName}"
   httpApi:
     authorizers:
       serviceAuthorizer:
@@ -98,6 +103,13 @@ functions:
       - httpApi:
           path: /user
           method: put
+          authorizer: serviceAuthorizer
+  createPost:
+    handler: src/functions/post.create
+    events: 
+      - httpApi:
+          path: /post
+          method: post
           authorizer: serviceAuthorizer
 
 
@@ -175,5 +187,29 @@ resources:
                 - 
                   - "arn:aws:s3:::"
                   - !Ref AvatarsBucket
+                  - "/*"
+    PostsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.postBucket}
+        AccessControl: Private
+    PostsBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref PostsBucket
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:PutObject
+              - s3:GetObject
+              - s3:DeleteObject
+            Resource: 
+              Fn::Join: 
+                - ""
+                - 
+                  - "arn:aws:s3:::"
+                  - !Ref PostsBucket
                   - "/*"
 
