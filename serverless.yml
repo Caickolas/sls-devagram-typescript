@@ -132,6 +132,13 @@ functions:
           path: /post/{postId}
           method: get
           authorizer: serviceAuthorizer
+  getUserById:
+    handler: src/functions/user.getUserById
+    events: 
+      - httpApi:
+          path: /user/{userId}
+          method: get
+          authorizer: serviceAuthorizer
 
 
 resources:

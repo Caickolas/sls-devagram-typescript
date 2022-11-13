@@ -35,8 +35,6 @@ export const me: Handler = async (event: APIGatewayEvent)
         console.log('Error on user data:', error)
         return formatDefaultResponse(500, 'Erro ao buscar dados do usuario! tente novamente ou contacte o administrador do sistema');
     }
-
-
 }
 
 export const update: Handler = async (event: APIGatewayEvent)
@@ -80,5 +78,37 @@ export const update: Handler = async (event: APIGatewayEvent)
     } catch (error) {
         console.log('Error on update user data:', error)
         return formatDefaultResponse(500, 'Erro ao atualizar dados  do usuario! tente novamente ou contacte o administrador do sistema');
+    }
+}
+
+export const getUserById: Handler = async (event: any)
+    : Promise<DefaultJsonResponse> => {
+    try {
+        const { AVATAR_BUCKET, error } = validateEnvs(['AVATAR_BUCKET',
+            'USER_TABLE'])
+
+        if (error) {
+            return formatDefaultResponse(500, error)
+        }
+
+        const {userId} = event.pathParameters;
+        if (!userId) {
+            return formatDefaultResponse(400, 'Usuario não encontrado')
+        }
+
+        const user = await UserModel.get({ 'cognitoId': userId });
+        if (!user) {
+            return formatDefaultResponse(400, 'Usuario não encontrado')
+        }
+
+        if (user.avatar) {
+            user.avatar = await new S3Service().getImageURL(AVATAR_BUCKET, user.avatar);
+
+        }
+
+        return formatDefaultResponse(200, undefined, user)
+    } catch (error) {
+        console.log('Error on get user by id:', error)
+        return formatDefaultResponse(500, 'Erro ao buscar dados do usuario por id! tente novamente ou contacte o administrador do sistema');
     }
 }
