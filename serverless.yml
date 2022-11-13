@@ -139,6 +139,13 @@ functions:
           path: /user/{userId}
           method: get
           authorizer: serviceAuthorizer
+  searchUser:
+    handler: src/functions/user.searchUser
+    events: 
+      - httpApi:
+          path: /user/search/{filter}
+          method: get
+          authorizer: serviceAuthorizer
 
 
 resources:
