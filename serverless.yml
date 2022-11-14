@@ -2,8 +2,8 @@ service: sls-devagram-typescript
 frameworkVersion: '3'
 
 custom: 
-  userPoolId: 'us-east-1_I3s5k6AnQ'
-  userPoolClientId: '7dhpm73efknq2o9cv0s4mfoctn'
+  userPoolId: !Ref CognitoUserPool
+  userPoolClientId: !Ref CognitoUserPoolClient
   userTableName: 'users-table-${self:provider.stage}'
   postTableName: 'posts-table-${self:provider.stage}'
   postBucket: '${self:service}-${self:provider.stage}-postsss'
@@ -24,6 +24,7 @@ provider:
     AVATAR_BUCKET: ${self:custom.avatarBucket}
     POST_TABLE: ${self:custom.postTableName}
     POST_BUCKET: ${self:custom.postBucket}
+    LOG_LEVEL: ${param:level, 'info'}
   iam: 
     role: 
       statements:
@@ -166,6 +167,13 @@ functions:
           path: /feed/user/{userId}
           method: get
           authorizer: serviceAuthorizer
+  home:
+    handler: src/functions/feed.feedHome
+    events: 
+      - httpApi:
+          path: /feed
+          method: get
+          authorizer: serviceAuthorizer
 
 
 resources:
@@ -179,7 +187,7 @@ resources:
         UsernameAttributes:
           - email
         AutoVerifiedAttributes:
-         - email
+          - email
         EmailVerificationMessage: "Seu código de verificação para o cadastro devagram é {####}."
         EmailVerificationSubject: "Código de verificação Devagram"
         Policies:
