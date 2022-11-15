@@ -3,7 +3,7 @@ name: Deploy ambiente de desenvolvimento
 on:
   push:
     branches:
-      - dev
+      - master
 
 jobs:
   deploy:
